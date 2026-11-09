@@ -1,18 +1,9 @@
-import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 def causal_attention(q, k, v):
-  # q, k, v : (B, n_head, T, head_dim)  T : 처리하는 길이
-  # (B, T) -> (B, T, n_embd) -> (B, T, n_head, head_dim) -> (B, n_head, T, head_dim)
-  T = q.size(-2)
-  att = (q @ k.transpose(-2, -1)) / math.sqrt(q.size(-1))
-  # (B, n_head, T, T)
-  # i,j 행 : T_i @ T_j -> j<=i 에만 어텐션을 적용
-  mask = torch.tril(torch.ones(T,T, device=q.device, dtype=torch.bool))
-  att = att.masked_fill(~mask, float("-inf"))
-  return F.softmax(att, dim=-1) @ v
+  return F.scaled_dot_product_attention(q, k, v, is_causal=True)
 
 class CausalSelfAttention(nn.Module):
   def __init__(self, c):

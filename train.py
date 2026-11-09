@@ -71,7 +71,8 @@ def estimate_loss(model, train_data, val_data, batch_size, block_size, eval_iter
         values = []
         for _ in range(eval_iters):
             x, y = get_batch(data, batch_size, block_size, device)
-            _, loss = model(x, y)
+            with torch.autocast(device_type=device.type, dtype=torch.float16):
+                _, loss = model(x, y)
             values.append(loss.item())
         losses[split] = sum(values) / len(values)
     model.train()
@@ -164,6 +165,7 @@ def main():
         lr=6e-4,
         betas=(0.9, 0.95),
     )
+    scaler = torch.amp.GradScaler(device.type)
 
     checkpoint = Path(args.checkpoint).expanduser()
     if not checkpoint.is_absolute():
@@ -211,11 +213,14 @@ def main():
             break
 
         x, y = get_batch(train_data, args.batch_size, block_size, device)
-        _, loss = model(x, y)
+        with torch.autocast(device_type=device.type, dtype=torch.float16):
+            _, loss = model(x, y)
         opt.zero_grad(set_to_none=True)
-        loss.backward()
+        scaler.scale(loss).backward()
+        scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        opt.step()
+        scaler.step(opt)
+        scaler.update()
 
     torch.save(
         {
