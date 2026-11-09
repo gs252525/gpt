@@ -1,0 +1,5 @@
+{
+    "python.defaultInterpreterPath": "/Users/link/miniconda3/envs/transformer/bin/python",
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
+}
