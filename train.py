@@ -13,7 +13,7 @@ from checkpoint import (
     save_checkpoint,
 )
 from config import Config, DataConfig, TrainConfig
-from data import encode_splits, load_text_splits, make_batch_source
+from data.data import encode_splits, load_text_splits, make_batch_source
 from gpt import GPT
 from optimizer import build_optimizer, set_learning_rate
 from tokenizer import make_tokenizer

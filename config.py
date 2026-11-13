@@ -4,7 +4,7 @@ import sysconfig
 
 @dataclass
 class Config:
-    vocab_size: int
+    vocab_size: int # 16384
     block_size: int = 256
     n_layer: int = 6
     n_head: int = 6
@@ -30,7 +30,7 @@ class DataConfig:
 @dataclass
 class TrainConfig:
     max_iters: int = 4000
-    batch_size: int = 64
+    batch_size: int = 8
     eval_every: int = 250
     eval_iters: int = 50
     save_every: int = 250
